@@ -3,11 +3,13 @@ import warnings
 from django.template import loader
 from django.utils.deprecation import RenameMethodsBase
 
-from .. import compat, utils
+from .. import compat, utils, fields
 from . import filters, filterset
 
 
 # TODO: remove metaclass in 2.1
+
+
 class RenameAttributes(utils.RenameAttributesBase, RenameMethodsBase):
     renamed_attributes = (
         ('default_filter_set', 'filterset_base', utils.MigrationNotice),
@@ -164,7 +166,18 @@ class DjangoFilterBackend(metaclass=RenameAttributes):
                     'type': 'string',
                 },
             }
+            if issubclass(field.field_class, fields.MultipleChoiceField):
+                parameter['schema'] = {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string'
+                    }
+                }
+                parameter['explode'] = True
             if field.extra and 'choices' in field.extra:
-                parameter['schema']['enum'] = [c[0] for c in field.extra['choices']]
+                if parameter['schema']['type'] == 'array':
+                    parameter['schema']['items']['enum'] = [c[0] for c in field.extra['choices']]
+                else:
+                    parameter['schema']['enum'] = [c[0] for c in field.extra['choices']]
             parameters.append(parameter)
         return parameters
