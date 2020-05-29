@@ -1,5 +1,6 @@
 import warnings
 
+from django import forms
 from django.template import loader
 from django.utils.deprecation import RenameMethodsBase
 
@@ -163,7 +164,7 @@ class DjangoFilterBackend(metaclass=RenameAttributes):
                 'in': 'query',
                 'description': field.label if field.label is not None else field_name,
                 'schema': {
-                    'type': 'string',
+                    'type': 'boolean' if isinstance(field.field_class, forms.NullBooleanField) else 'string',
                 },
             }
             if issubclass(field.field_class, fields.MultipleChoiceField):
