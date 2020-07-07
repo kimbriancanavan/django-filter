@@ -167,7 +167,7 @@ class DjangoFilterBackend(metaclass=RenameAttributes):
                     'type': 'boolean' if isinstance(field.field_class, forms.NullBooleanField) else 'string',
                 },
             }
-            if issubclass(field.field_class, fields.MultipleChoiceField):
+            if issubclass(field.field_class, (fields.MultipleChoiceField, fields.ModelMultipleChoiceField)):
                 parameter['schema'] = {
                     'type': 'array',
                     'items': {
